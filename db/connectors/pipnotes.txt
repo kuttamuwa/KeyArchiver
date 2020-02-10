@@ -1,0 +1,5 @@
+# if you are runnin on linux you'd probably encounter some issues around installing pyodbc lib
+# to fix that:
+sudo apt-get install unixodbc-dev
+sudo pip install pyodbc
+
