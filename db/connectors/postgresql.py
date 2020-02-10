@@ -40,5 +40,4 @@ class PostgreSQLConnector(BaseDBConnector, ABC):
 
     def create_table(self, tablename, *columns, **kwargs):
         df = pd.DataFrame(data=None, columns=columns)
-        df.name = tablename
-        df.to_sql(df.name, self.dbengine, **kwargs)
+        df.to_sql(tablename, self.dbengine, **kwargs)

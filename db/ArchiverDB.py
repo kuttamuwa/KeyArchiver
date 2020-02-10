@@ -45,8 +45,8 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
                                                start=False)
 
         elif self.brand == 'POSTGRESQL':
-            self = PostgreSQLConnector(self._username, self._password, self._dbname, self._port, self._ip,
-                                       start=True)
+            self.dbengine = PostgreSQLConnector(self._username, self._password, self._dbname, self._port, self._ip,
+                                                start=True)
 
         elif self.brand == 'MONGO':
             self.dbengine = MongoConnector(self._username, self._password, self._dbname, self._port, self._ip,
@@ -58,7 +58,7 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
 
     def create_archive_tables(self):
         if not self.get_archive_table():
-            self.create_table(self.__tablename__, *self.__columnnames__, if_exists='append')
+            self.dbengine.create_table(self.__tablename__, *self.__columnnames__, if_exists='append')
 
     def _get_dbinfos_config(self):
         section = self._configreader.read_section('db')
