@@ -2,7 +2,7 @@
 # Author, Formatter : Umut Ucok
 
 __author__ = 'Umut Ucok'
-__supported__ = ('Oracle', 'Microsoft SQL Server', 'PostgreSQL', 'Microsoft Access')
+__supported__ = ('ORACLE', 'MSSQLSERVER', 'POSTGRESQL', 'MSACCESS', 'MONGO')
 
 from sqlalchemy.orm import scoped_session, sessionmaker
 import sys
@@ -22,7 +22,7 @@ class BaseDBConnector:
     """
 
     def __init__(self, *args, **kwargs):
-        self.__username, self.__password, self.__dbname, self.__port, self.__ip = args
+        self._username, self._password, self._dbname, self._port, self._ip = args
 
         self.dbengine = None
         self.dbsession = None
@@ -57,10 +57,10 @@ class BaseDBConnector:
         self.dbsession.execute(vsql)
 
     def import_config_file(self, path):
-        pass
+        raise NotImplementedError()
 
     def export_connection_config(self, folder):
-        pass
+        raise NotImplementedError()
 
     def check_changeversion_sql(self, vsql):
         try:
@@ -88,28 +88,28 @@ class BaseDBConnector:
         self.change_version_onsession()
 
     def create_engine(self):
-        pass
+        raise NotImplementedError()
 
     def find_gis_datatype_oftable(self, tablename):
-        pass
+        raise NotImplementedError()
 
     def generate_changeversion_sql(self):
-        pass
+        raise NotImplementedError()
 
     def test_connection(self):
-        pass
+        raise NotImplementedError()
 
     def make_engine(self):
         self.create_engine()
 
     def close_connection(self):
-        pass
+        raise NotImplementedError()
 
     def execute_sql(self, sqlClause):
-        pass
+        raise NotImplementedError()
 
     def execute_sqlfile(self, sqlFile):
-        pass
+        raise NotImplementedError()
 
     def add_users(self, **users):
         """
@@ -117,13 +117,13 @@ class BaseDBConnector:
         :param users:
         :return:
         """
-        pass
+        raise NotImplementedError()
 
     def delete_users(self, *users):
-        pass
+        raise NotImplementedError()
 
     def alter_password(self, username, newPassword):
-        pass
+        raise NotImplementedError()
 
     def clone_database(self, sourceDB, targetDBName, **kwargs):
         """
@@ -135,15 +135,29 @@ class BaseDBConnector:
             filter: todo : fill later
         :return:
         """
-        pass
+        raise NotImplementedError()
 
     def export_shp(self, tablename, path):
-        pass
+        raise NotImplementedError()
 
     def import_shp(self, path, table):
-        pass
+        raise NotImplementedError()
 
+    def create_table(self, tablename, *columns, **kwargs):
+        raise NotImplementedError(f"This feature is not implemented for {self.get_db_brand()}")
+
+    def get_db_brand(self):
+        if str(self.dbengine.dbengine.engine.name).lower().count('postgresql'):
+            return __supported__[2]
+        elif str(self.dbengine.dbengine.engine.name).lower().count('oracle'):
+            raise NotImplementedError('baksana olm')
+        elif str(self.dbengine.dbengine.engine.name).lower().count('sqlserver'):
+            raise NotImplementedError('baksana olm')
+        elif str(self.dbengine.dbengine.engine.name).lower().count('mongo'):
+            raise NotImplementedError('baksana olm')
+        elif str(self.dbengine.dbengine.engine.name).lower().count('access'):
+            raise NotImplementedError('baksana olm')
 
 class BaseDBErrors(Exception):
-    def __init__(self):
-        pass
+    def __init__(self, msg):
+        raise Exception(msg)

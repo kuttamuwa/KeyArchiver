@@ -7,7 +7,7 @@ class MongoConnector(BaseDBConnector):
         super().__init__(*args, **kwargs)
 
     def create_engine(self):
-        dbengine = MongoClient(self.__ip, self.__port, serverSelectionTimeoutMS=2000)
+        dbengine = MongoClient(self._ip, self._port, serverSelectionTimeoutMS=2000)
         try:
             dbengine.server_info()
             self.dbengine = dbengine

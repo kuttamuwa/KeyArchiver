@@ -1,12 +1,14 @@
+from abc import ABC
+
 from .baseDBConnector import BaseDBConnector
 
 from sqlalchemy import create_engine
 import sys
-import cx_Oracle
+# import cx_Oracle
 import os
 
 
-class OracleConnector(BaseDBConnector):
+class OracleConnector(BaseDBConnector, ABC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -27,14 +29,14 @@ class OracleConnector(BaseDBConnector):
 
         try:
             oraengine = create_engine(
-                'oracle://{}:{}@{}:{}/{}'.format(self.__username, self.__password, self.__ip, self.__port,
+                'oracle://{}:{}@{}:{}/{}'.format(self._username, self._password, self._ip, self._port,
                                                  self.sid))
             oraengine.connect()
             self.dbengine = oraengine
 
         except:
             print("SID yerine TNS'den gitmeyi deneyecegiz.")
-            oraengine = create_engine('oracle+cx_oracle://{}:{}@{}'.format(self.__username, self.__password, self.sid))
+            oraengine = create_engine('oracle+cx_oracle://{}:{}@{}'.format(self._username, self._password, self.sid))
 
             try:
                 oraengine.connect()
@@ -43,8 +45,8 @@ class OracleConnector(BaseDBConnector):
             except:
                 print("himm belki de tns'yi bizim olusturmamiz gerekiyor. Deneyelim.")
                 try:
-                    dsn_tns = cx_Oracle.makedsn(self.__ip, self.__port, self.sid)
-                    con = cx_Oracle.connect(self.__username, self.__password, dsn_tns)
+                    dsn_tns = cx_Oracle.makedsn(self._ip, self._port, self.sid)
+                    con = cx_Oracle.connect(self._username, self._password, dsn_tns)
                     self.dbengine = con
                 except Exception:
                     e = sys.exc_info()[1]

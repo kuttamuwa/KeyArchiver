@@ -1,12 +1,14 @@
+from abc import ABC
+
 from .baseDBConnector import BaseDBConnector
 
 import os
 import pyodbc
 
 
-class MSAccessConnector(BaseDBConnector):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class MSAccessConnector(BaseDBConnector, ABC):
+    def __init__(self, path):
+        super().__init__(path=path)
 
     def create_engine(self):
         """
@@ -14,7 +16,7 @@ class MSAccessConnector(BaseDBConnector):
         :return: it fills dbengine with sql alchemy engine.
         """
 
-        path = self.__dbname
+        path = self._dbname
         if not os.access(path, os.F_OK):
             Warning('Verilen pathe ulasamadik, ama bir deneyelim. Path: %s' % path)
 

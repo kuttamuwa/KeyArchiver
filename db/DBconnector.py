@@ -4,13 +4,11 @@
 __author__ = 'Umut Ucok'
 __supported__ = ('Oracle', 'Microsoft SQL Server', 'PostgreSQL', 'Microsoft Access')
 
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 import os
 import sys
 import pyodbc
-import cx_Oracle
 
 
 class DBConnector(object):
@@ -120,18 +118,12 @@ class DBConnector(object):
                 oraengine.connect()
                 self.dbengine = oraengine
 
-            except:
-                print("himm belki de tns'yi bizim olusturmamiz gerekiyor. Deneyelim.")
-                try:
-                    dsn_tns = cx_Oracle.makedsn(self.ip, self.port, self.sid)
-                    con = cx_Oracle.connect(self.username, self.password, dsn_tns)
-                    self.dbengine = con
-                except Exception:
-                    e = sys.exc_info()[1]
-                    raise AssertionError(
-                        "Maalesef Oracle Veritabanina baglanti yapilamadi. Lutfen baglanti bilgilerini"
-                        " kontrol ediniz ve tekrar deneyiniz. Hata : \n"
-                        "%s" % e)
+            except Exception:
+                e = sys.exc_info()[1]
+                raise AssertionError(
+                    "Maalesef Oracle Veritabanina baglanti yapilamadi. Lutfen baglanti bilgilerini"
+                    " kontrol ediniz ve tekrar deneyiniz. Hata : \n"
+                    "%s" % e)
 
     def create_session(self):
         """

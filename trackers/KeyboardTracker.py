@@ -1,17 +1,19 @@
 from pynput.keyboard import Key, Listener
 from trackers.CopyManager import CopyManager
 from gui.popup import RecordWindow
-import threading
+from threading import Thread
 
 
-class KeyboardTrackManager:
+class KeyboardTrackManager(Thread):
     shortcut_count_limit = 3
 
     def __init__(self):
+        super().__init__()
         self.shortcut_key = Key.ctrl  # default
         self.shortcut_counter = 0  # default
         self.create_listener()
         self.popup = None
+        self._dbengine = None
 
     def create_listener(self):
         with Listener(on_press=self.on_press_event) as listener:
@@ -33,8 +35,3 @@ class KeyboardTrackManager:
             print(CopyManager.get_copied_text())
             self._create_popup()
             self.shortcut_counter = 0
-
-
-if __name__ == '__main__':
-    ktracker = KeyboardTrackManager()
-    ktracker.action()
