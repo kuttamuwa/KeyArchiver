@@ -40,3 +40,12 @@ class ConfiguresReader:
 
     def ordered_list_sections(self, sectionlist):
         return [self.read_section(sec) for sec in sectionlist]
+
+    def format_for_dbconnector(self):
+        section = self.read_section('db')
+        username, password, dbname, port, ip, _ = section.values()
+        path = section.get('path')
+        version = section.get('version')
+        sde_engine = section.get('sde_engine')
+
+        return username, password, dbname, port, ip, path, version, sde_engine

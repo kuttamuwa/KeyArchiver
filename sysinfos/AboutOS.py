@@ -1,7 +1,7 @@
 import sys
 
 
-class Shortcuts:
+class OSInfos:
     opsystem = None
     if 'posix' in sys.builtin_module_names:
         opsystem = '*nix'

@@ -7,6 +7,11 @@ __supported__ = ('ORACLE', 'MSSQLSERVER', 'POSTGRESQL', 'MSACCESS', 'SQLITE', 'M
 import sys
 
 from sqlalchemy.orm import scoped_session, sessionmaker
+from sysinfos.AboutOS import OSInfos
+
+required_arguments_for_rdbms = ('username', 'password', 'dbname', 'port', 'ip')
+required_arguments_for_filebase = ['path']
+required_arguments_for_nosql = required_arguments_for_rdbms
 
 
 class BaseDBConnector:
@@ -159,6 +164,18 @@ class BaseDBConnector:
             raise NotImplementedError('baksana olm')
         elif str(self.dbengine.dbengine.engine.name).lower().count('access'):
             raise NotImplementedError('baksana olm')
+
+    @staticmethod
+    def get_required_arguments_for_rdbms():
+        return required_arguments_for_rdbms
+
+    @staticmethod
+    def get_required_arguments_for_filebase():
+        return required_arguments_for_filebase
+
+    @staticmethod
+    def get_required_arguments_for_nosql():
+        return required_arguments_for_nosql
 
 
 class BaseDBErrors(Exception):

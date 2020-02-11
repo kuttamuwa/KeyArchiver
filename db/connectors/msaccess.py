@@ -7,7 +7,10 @@ from .baseDBConnector import BaseDBConnector
 
 
 class MSAccessConnector(BaseDBConnector, ABC):
-    def __init__(self, path):
+    def __init__(self, path, **kwargs):
+        if kwargs.get('warnings') is not False:
+            self.give_warnings()
+
         super().__init__(path=path)
 
     def create_engine(self):
@@ -30,3 +33,7 @@ class MSAccessConnector(BaseDBConnector, ABC):
 
     def find_gis_datatype_oftable(self, tablename):
         self._accessLimitations(self.find_gis_datatype_oftable.__name__)
+
+    @classmethod
+    def give_warnings(cls):
+        print('I HATE ACCESS. BUT YOU CAN USE IT WITH MANY LIMITED FUNCTIONALITY ')

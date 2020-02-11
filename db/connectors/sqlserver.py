@@ -1,12 +1,16 @@
+from abc import ABC
+
 from sqlalchemy import create_engine
 
-from .baseDBConnector import BaseDBConnector
+from .baseDBConnector import BaseDBConnector, BaseDBErrors
+from .baseDBConnector import OSInfos
+import pyodbc
+import urllib
 
 
-class SQLServerConnector(BaseDBConnector):
+class SQLServerConnector(BaseDBConnector, ABC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.username, self.password, self.dbname, self.port, self.ip, self.dbbrand = args
 
         self.versioned = False
         self.sde_exist = False
@@ -16,29 +20,34 @@ class SQLServerConnector(BaseDBConnector):
                 related with constructors
                 :return: sql alchemy database connection engine
         """
-        if self.port is None:
-            self.port = 1433
+        if self._port is None:
+            self._port = 1433
 
         try:
-            sqlengine = create_engine("mssql+pymssql://{}:{}@{}:{}/{}".format(self.username, self.password, self.ip,
-                                                                              self.port, self.dbname))
+            sqlengine = create_engine("mssql+pyodbc://{}:{}@{}:{}/{}".format(self._username, self._password, self._ip,
+                                                                             self._port, self._dbname))
+
+
             sqlengine.connect()
             print("SQL Server baglanti basarili")
             self.dbengine = sqlengine
 
-        except:
-            print("baglanti basarisiz oldu, baska bir yontemle deniyoruz..")
-            sqlengine = create_engine("mssql+pyodbc://{}:{}@{}:{}/{}".format(self.username, self.password, self.ip,
-                                                                             self.port, self.dbname))
-            self.dbengine = sqlengine
-            try:
-                sqlengine.connect()
-                print("SQL Server baglantisi basarili ")
-                self.dbengine = sqlengine
+        except pyodbc.InterfaceError as err:
+            if err.args.count('driver'):
+                print("baglanti basarisiz oldu, driver göstererek ilerleyeceğiz.")
+                sqlengine = create_engine("mssql+pyodbc://sa:sa.123@10.0.1.228:1433/test_cbs"
+                                          "?driver=ODBC+Driver+17+for+SQL+Server")
 
-            except Exception as e:
-                raise AssertionError("SQL Server veritabanina baglanilamadi. Lutfen baglanti bilgilerini kontrol "
-                                     "ediniz. \n Hata : %s" % e)
+                try:
+                    sqlengine.connect()
+                    print("SQL Server baglantisi basarili ")
+                    self.dbengine = sqlengine
+
+                except Exception as e:
+                    raise AssertionError("SQL Server veritabanina baglanilamadi. Lutfen baglanti bilgilerini kontrol "
+                                         "ediniz. \n Hata : %s" % e)
+            else:
+                raise BaseDBErrors(f'Unexpected errors : {err}')
 
     def find_gis_datatype_oftable(self, tablename):
         sql = f"SELECT SHAPE.STGeometryType() FROM {tablename}"
@@ -67,3 +76,13 @@ class SQLServerConnector(BaseDBConnector):
                                      'Version change SQL : %s \n '
                                      'Hata : %s' % ("EXEC sde.SET_CURRENT_VERSION {}".format(self.version),
                                                     self.check_changeversion_sql(vsql)[-1]))
+
+    @staticmethod
+    def get_odbc_driver():
+        try:
+            with open('/etc/odbcinst.ini') as reader:
+                line = reader.readline()
+                # todo : fil it
+
+        except:
+            pass

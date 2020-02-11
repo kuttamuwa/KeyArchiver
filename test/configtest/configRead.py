@@ -1,22 +1,14 @@
 import unittest
 
 
-class ConfigReadTest(unittest.TestCase):
-    def test_read_access(self):
+class ConfigReadTestDB(unittest.TestCase):
+    def test_read_access_config(self):
         self.assertEqual(True, False)
 
-    def test_read_sqlserver(self):
-        self.assertEqual(True, False)
 
-    def test_read_oracle(self):
-        self.assertEqual(True, False)
-
-    def test_readaccess(self):
-        self.assertEqual(True, False)
-
-    def test_readaccess(self):
-        self.assertEqual(True, False)
-
+class ConfigReadTestAnotherSection(unittest.TestCase):
+    # another section tests
+    pass
 
 
 if __name__ == '__main__':

@@ -45,8 +45,7 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
         # ('ORACLE', 'MSSQLSERVER', 'POSTGRESQL', 'MSACCESS')
 
         if self.brand == 'MSACCESS':
-            # todo : access'e bakıver
-            self.dbengine = MSAccessConnector(self._path)
+            self.dbengine = MSAccessConnector(self._path, warnings=False)
 
         elif self.brand == 'ORACLE':
             self.dbengine = OracleConnector(self._username, self._password, self._dbname, self._port, self._ip,

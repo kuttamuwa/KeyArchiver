@@ -3,3 +3,10 @@
 sudo apt-get install unixodbc-dev
 sudo pip install pyodbc
 
+# if you are running on linux you'd probably encounter some issues around connecting to sql server database
+sudo apt-get install freetds-dev freetds-bin unixodbc-dev tdsodbc
+echo
+#In /etc/odbcinst.ini:
+sudo printf "[FreeTDS]\nDescription=FreeTDS Driver\n
+Driver=/usr/lib/x86_64-linux-gnu/odbc/libtdsodbc.so\n
+Setup=/usr/lib/x86_64-linux-gnu/odbc/libtdsS.so" > /etc/odbcinst.ini
