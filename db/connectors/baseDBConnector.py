@@ -6,8 +6,8 @@ __supported__ = ('ORACLE', 'MSSQLSERVER', 'POSTGRESQL', 'MSACCESS', 'SQLITE', 'M
 
 import sys
 
+from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import scoped_session, sessionmaker
-from sysinfos.AboutOS import OSInfos
 
 required_arguments_for_rdbms = ('username', 'password', 'dbname', 'port', 'ip')
 required_arguments_for_filebase = ['path']
@@ -129,8 +129,18 @@ class BaseDBConnector:
     def delete_users(self, *users):
         raise NotImplementedError()
 
+    def delete_table(self, *tables):
+        raise NotImplementedError()
+
     def alter_password(self, username, newPassword):
         raise NotImplementedError()
+
+    def add_row(self, df, tablename, **kwargs):
+        try:
+            df.to_sql(tablename, self.dbengine, **kwargs)
+        except ProgrammingError as prgerr:
+            if prgerr.args[0].count('UndefinedColumn') > 0:
+                raise BaseDBErrors.ColumnNotExists
 
     def clone_database(self, sourceDB, targetDBName, **kwargs):
         """
@@ -181,3 +191,6 @@ class BaseDBConnector:
 class BaseDBErrors(Exception):
     def __init__(self, msg):
         raise Exception(msg)
+
+    class ColumnNotExists(Exception):
+        pass

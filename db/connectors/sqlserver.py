@@ -1,11 +1,10 @@
 from abc import ABC
 
+import pyodbc
 from sqlalchemy import create_engine
 
 from .baseDBConnector import BaseDBConnector, BaseDBErrors
 from .baseDBConnector import OSInfos
-import pyodbc
-import urllib
 
 
 class SQLServerConnector(BaseDBConnector, ABC):
@@ -23,10 +22,17 @@ class SQLServerConnector(BaseDBConnector, ABC):
         if self._port is None:
             self._port = 1433
 
+        if OSInfos.opsystem == '*nix':
+            # todo : fill it
+            pass
+
+        elif OSInfos.opsystem == 'nt':
+            # todo : fill it
+            pass
+
         try:
             sqlengine = create_engine("mssql+pyodbc://{}:{}@{}:{}/{}".format(self._username, self._password, self._ip,
                                                                              self._port, self._dbname))
-
 
             sqlengine.connect()
             print("SQL Server baglanti basarili")

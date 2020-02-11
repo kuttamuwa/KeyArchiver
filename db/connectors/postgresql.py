@@ -42,3 +42,7 @@ class PostgreSQLConnector(BaseDBConnector, ABC):
     def create_table(self, tablename, *columns, **kwargs):
         df = pd.DataFrame(data=None, columns=columns)
         df.to_sql(tablename, self.dbengine, **kwargs)
+
+    def delete_table(self, *tables):
+        for table in tables:
+            self.dbengine.execute(f'DROP TABLE IF EXISTS {table} CASCADE')

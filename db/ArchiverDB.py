@@ -10,6 +10,7 @@ from db.connectors.baseDBConnector import __supported__ as dbsupporteds
 from db.connectors.mongo import MongoConnector
 from db.connectors.msaccess import MSAccessConnector
 from db.connectors.oracle import OracleConnector
+from db.connectors.postgresql import BaseDBErrors
 from db.connectors.postgresql import PostgreSQLConnector
 from db.connectors.sqlserver import SQLServerConnector
 
@@ -89,13 +90,25 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
             self.brand = 'SQLITE'
             return f"{abspath('.')}/keyarchiver.db"
 
+    def recreate_archive_tables(self):
+        self.delete_archive_tables()
+        self.create_archive_tables()
+
+    def delete_archive_tables(self):
+        self.dbengine.delete_table(self.__tablename__)
+
     def add_row(self, key, value):
         df = pd.DataFrame({
             self.__columnnames__[0]: key,
             self.__columnnames__[1]: value,
             self.__columnnames__[2]: pd.to_datetime('today', errors='coerce')
         }, index=[0])
-        df.to_sql(self.__tablename__, self.dbengine.dbengine, if_exists='append', )
+
+        try:
+            self.dbengine.add_row(df, self.__tablename__, if_exists='append')
+        except BaseDBErrors.ColumnNotExists:
+            self.recreate_archive_tables()
+            self.dbengine.add_row(df, self.__tablename__, if_exists='append')
 
 
 class ArchiveTableNotExists(BaseException):
