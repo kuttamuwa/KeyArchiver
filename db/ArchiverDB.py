@@ -1,14 +1,17 @@
 from abc import ABC
+from os.path import isfile, abspath
 
+import pandas as pd
+
+from config.ConfigReader import ConfiguresReader
+from db.connectors.SQLite import SQLite
 from db.connectors.baseDBConnector import BaseDBConnector
 from db.connectors.baseDBConnector import __supported__ as dbsupporteds
-from db.connectors.msaccess import MSAccessConnector
 from db.connectors.mongo import MongoConnector
+from db.connectors.msaccess import MSAccessConnector
 from db.connectors.oracle import OracleConnector
 from db.connectors.postgresql import PostgreSQLConnector
 from db.connectors.sqlserver import SQLServerConnector
-from config.ConfigReader import ConfiguresReader
-import pandas as pd
 
 
 class ArchiveDBConnection(BaseDBConnector, ABC):
@@ -18,13 +21,24 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
 
     def __init__(self):
         self._configreader = self.config_read()
-        self.dbinfos = self._get_dbinfos_config()
-        super().__init__(*self.dbinfos)
+        dbinfos = self._get_dbinfos_config()
+
+        if isinstance(dbinfos, str) == 1:
+            # sqlite
+            self.brand = 'SQLITE'
+            super().__init__(None, None, None, None, None, path=dbinfos)  # uname, pass, dbname, port, ip
+        else:
+            super().__init__(*dbinfos)
+
         self.create_engine()
         self.create_archive_tables()
 
     def config_read(self):
-        return ConfiguresReader(self.__config__)
+        if not isfile(self.__config__):
+            print(f"config dosyası {self.__config__} pathinde bulunamadı. SQLite kullanılacak.")
+            return None
+        else:
+            return ConfiguresReader(self.__config__)
 
     def create_engine(self):
         if self.brand not in dbsupporteds:
@@ -34,15 +48,15 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
 
         if self.brand == 'MSACCESS':
             # todo : access'e bakıver
-            self.dbengine = MSAccessConnector(None)
+            self.dbengine = MSAccessConnector(self._path)
 
         elif self.brand == 'ORACLE':
             self.dbengine = OracleConnector(self._username, self._password, self._dbname, self._port, self._ip,
-                                            start=False)
+                                            start=True)
 
         elif self.brand == 'MSSQLSERVER':
             self.dbengine = SQLServerConnector(self._username, self._password, self._dbname, self._port, self._ip,
-                                               start=False)
+                                               start=True)
 
         elif self.brand == 'POSTGRESQL':
             self.dbengine = PostgreSQLConnector(self._username, self._password, self._dbname, self._port, self._ip,
@@ -50,7 +64,9 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
 
         elif self.brand == 'MONGO':
             self.dbengine = MongoConnector(self._username, self._password, self._dbname, self._port, self._ip,
-                                           start=False)
+                                           start=True)
+        elif self.brand == 'SQLITE':
+            self.dbengine = SQLite(self._path, start=True)
 
     def get_archive_table(self):
         return self.dbengine.dbengine.dialect.has_table(connection=self.dbengine.dbengine,
@@ -61,15 +77,25 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
             self.dbengine.create_table(self.__tablename__, *self.__columnnames__, if_exists='append')
 
     def _get_dbinfos_config(self):
-        section = self._configreader.read_section('db')
-        username = str(section.get('username'))
-        password = str(section.get('password'))
-        dbname = str(section.get('dbname'))
-        port = int(section.get('port'))
-        ip = str(section.get('ip')).lower()
-        self.brand = str(section.get('brand')).upper()
+        if self._configreader is not None:
+            section = self._configreader.read_section('db')
+            username = str(section.get('username'))
+            password = str(section.get('password'))
+            dbname = str(section.get('dbname'))
+            port = int(section.get('port'))
+            ip = str(section.get('ip')).lower()
+            self.brand = str(section.get('brand')).upper()
 
-        return username, password, dbname, port, ip
+            return username, password, dbname, port, ip
+        else:
+            return f"{abspath('.')}/keyarchiver.db"
+
+    def add_row(self, key, value, **kwargs):
+        df = pd.DataFrame({
+            self.__columnnames__[0]: key,
+            self.__columnnames__[1]: value
+        }, index=[0])
+        df.to_sql(self.__tablename__, self.dbengine.dbengine, if_exists='append', )
 
 
 class ArchiveTableNotExists(BaseException):

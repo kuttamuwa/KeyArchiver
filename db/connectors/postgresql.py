@@ -1,9 +1,10 @@
 from abc import ABC
 
-from .baseDBConnector import BaseDBConnector, BaseDBErrors
-from sqlalchemy import create_engine
-from psycopg2 import OperationalError
 import pandas as pd
+from psycopg2 import OperationalError
+from sqlalchemy import create_engine
+
+from .baseDBConnector import BaseDBConnector, BaseDBErrors
 
 
 class PostgreSQLConnector(BaseDBConnector, ABC):

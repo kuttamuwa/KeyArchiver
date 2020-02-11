@@ -1,9 +1,9 @@
+import os
 from abc import ABC
 
-from .baseDBConnector import BaseDBConnector
-
-import os
 import pyodbc
+
+from .baseDBConnector import BaseDBConnector
 
 
 class MSAccessConnector(BaseDBConnector, ABC):
@@ -23,9 +23,10 @@ class MSAccessConnector(BaseDBConnector, ABC):
         try:
             acc_engine = pyodbc.connect('DRIVER={{Microsoft Access Driver (*.mdb, *.accdb)}};DBQ={}'.format(path))
             self.dbengine = acc_engine
-        except:
+        except Exception as err:
             raise AssertionError('Access baglantisi yapilamadi. Verilen path : \n'
-                                 '%s . Belirlenen adreste olduguna ve yetkiniz olduguna emin olunuz.' % path)
+                                 '%s . Belirlenen adreste olduguna ve yetkiniz olduguna emin olunuz. \n'
+                                 'Error : %s' % (path, err))
 
     def find_gis_datatype_oftable(self, tablename):
         self._accessLimitations(self.find_gis_datatype_oftable.__name__)

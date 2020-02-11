@@ -1,19 +1,24 @@
-from pynput.keyboard import Key, Listener
-from trackers.CopyManager import CopyManager
-from gui.popup import RecordWindow
 from threading import Thread
+
+from pynput.keyboard import Key, Listener
+
+from db.ArchiverDB import ArchiveDBConnection
+from gui.popup import RecordWindow
+from trackers.CopyManager import CopyManager
 
 
 class KeyboardTrackManager(Thread):
     shortcut_count_limit = 3
+    logger = None
 
     def __init__(self):
         super().__init__()
         self.shortcut_key = Key.ctrl  # default
         self.shortcut_counter = 0  # default
-        self.create_listener()
         self.popup = None
-        self._dbengine = None
+        self._dbengine = ArchiveDBConnection()
+
+        self.create_listener()
 
     def create_listener(self):
         with Listener(on_press=self.on_press_event) as listener:
@@ -21,6 +26,7 @@ class KeyboardTrackManager(Thread):
 
     def _create_popup(self):
         self.popup = RecordWindow()
+        return self.popup.description
 
     def on_press_event(self, key):
         if key == self.shortcut_key:
@@ -32,6 +38,8 @@ class KeyboardTrackManager(Thread):
 
     def action(self):
         if self.shortcut_counter >= self.shortcut_count_limit:
-            print(CopyManager.get_copied_text())
-            self._create_popup()
+            # print(CopyManager.get_copied_text())
+            description = self._create_popup()
+            # print(description)
+            self._dbengine.add_row(CopyManager.get_copied_text(), description)
             self.shortcut_counter = 0

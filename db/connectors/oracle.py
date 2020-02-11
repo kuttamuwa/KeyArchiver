@@ -1,11 +1,11 @@
-from abc import ABC
-
-from .baseDBConnector import BaseDBConnector
-
-from sqlalchemy import create_engine
-import sys
 # import cx_Oracle
 import os
+import sys
+from abc import ABC
+
+from sqlalchemy import create_engine
+
+from .baseDBConnector import BaseDBConnector
 
 
 class OracleConnector(BaseDBConnector, ABC):
@@ -73,7 +73,7 @@ class OracleConnector(BaseDBConnector, ABC):
                                  'Hata mesaji : %s' % (vsql, self.check_changeversion_sql(vsql)[-1]))
 
     def check_tnsnamesora(self):
-         # todo : burayı sonra doldur
+        # todo : burayı sonra doldur
         pass
 
     def convert_tnsnamesora_toengine(self, **kwargs):
@@ -89,9 +89,6 @@ class OracleConnector(BaseDBConnector, ABC):
         self.check_tnsnamesora()
 
 
-
 class OracleErrors(Exception):
     def __init__(self, errcode, **kwargs):
         self.errcode = errcode
-
-

@@ -1,8 +1,11 @@
-from db.connectors.baseDBConnector import BaseDBConnector
+from abc import ABC
+
 from pymongo import MongoClient, errors as mongoerrors
 
+from db.connectors.baseDBConnector import BaseDBConnector
 
-class MongoConnector(BaseDBConnector):
+
+class MongoConnector(BaseDBConnector, ABC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

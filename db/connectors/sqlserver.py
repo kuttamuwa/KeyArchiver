@@ -1,5 +1,6 @@
-from .baseDBConnector import BaseDBConnector
 from sqlalchemy import create_engine
+
+from .baseDBConnector import BaseDBConnector
 
 
 class SQLServerConnector(BaseDBConnector):

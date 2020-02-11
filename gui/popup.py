@@ -1,4 +1,5 @@
 import tkinter as tk
+
 from trackers.MouseTracker import MouseTrackManager
 
 
@@ -20,6 +21,7 @@ class RecordWindow(tk.Frame):
         self.state = True
 
         self.keyword_entry = None
+        self.description = None
         self._add_tag_label()
         self._save_tag_button()
         while self.state:
@@ -47,5 +49,6 @@ class RecordWindow(tk.Frame):
 
     def _save_keyboard_event(self, event):
         print(self.keyword_entry.get())
+        self.description = self.keyword_entry.get()
         # todo : save to db
         self.close_popup()

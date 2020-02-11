@@ -2,10 +2,11 @@
 # Author, Formatter : Umut Ucok
 
 __author__ = 'Umut Ucok'
-__supported__ = ('ORACLE', 'MSSQLSERVER', 'POSTGRESQL', 'MSACCESS', 'MONGO')
+__supported__ = ('ORACLE', 'MSSQLSERVER', 'POSTGRESQL', 'MSACCESS', 'SQLITE', 'MONGO')
+
+import sys
 
 from sqlalchemy.orm import scoped_session, sessionmaker
-import sys
 
 
 class BaseDBConnector:
@@ -23,6 +24,7 @@ class BaseDBConnector:
 
     def __init__(self, *args, **kwargs):
         self._username, self._password, self._dbname, self._port, self._ip = args
+        self._path = kwargs.get('path')
 
         self.dbengine = None
         self.dbsession = None
@@ -157,6 +159,7 @@ class BaseDBConnector:
             raise NotImplementedError('baksana olm')
         elif str(self.dbengine.dbengine.engine.name).lower().count('access'):
             raise NotImplementedError('baksana olm')
+
 
 class BaseDBErrors(Exception):
     def __init__(self, msg):
