@@ -20,7 +20,7 @@ class LoggingObject:
         # self.level_check(setlevel)
         self.name = logging_name
         self.output = self.check_output(output)
-        self.level = self.level_check(setlevel)
+        self.level = self.level_check(str(setlevel))
 
         self.logger = logging.getLogger(logging_name)
         self.logger.setLevel(self.level)  # logging.DEBUG

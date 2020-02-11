@@ -12,9 +12,21 @@ from .baseDBConnector import BaseDBConnector, BaseDBErrors
 class SQLite(BaseDBConnector, ABC):
     def __init__(self, path, **kwargs):
         super().__init__(None, None, None, None, None, path=path, **kwargs)
+        self.create_engine()
 
     def chech_exist(self):
         return isfile(self._path)
+
+    def create_sqlite_engine(self):
+        sqlite_engine = create_engine(f'sqlite:////{self._path}', echo=True)
+        try:
+            sqlite_engine.connect()
+            self.dbengine = sqlite_engine
+        except OperationalError as err:
+            # somehow it crash?
+            raise BaseDBErrors(
+                "SQLite veritabani baglantisi yapilamadi ! Baglanti bilgilerini kontrol ediniz.\n"
+                f"Hata : {err}")
 
     def create_engine(self):
         if not self.chech_exist():
@@ -22,15 +34,7 @@ class SQLite(BaseDBConnector, ABC):
             # lets create one
             # check your permission
             if access(self._path, W_OK):
-                sqlite_engine = create_engine(f'sqlite:////{self._path}', echo=True)
-                try:
-                    sqlite_engine.connect()
-                    self.dbengine = sqlite_engine
-                except OperationalError as err:
-                    # somehow it crash?
-                    raise BaseDBErrors(
-                        "SQLite veritabani baglantisi yapilamadi ! Baglanti bilgilerini kontrol ediniz.\n"
-                        f"Hata : {err}")
+                self.create_sqlite_engine()
             else:
                 # if we dont have writing permission
                 raise BaseDBErrors(
@@ -42,6 +46,8 @@ class SQLite(BaseDBConnector, ABC):
                 raise BaseDBErrors(
                     f"There is no permission to read {self._path} sqlite db file. Please check your permission !"
                 )
+            else:
+                self.create_sqlite_engine()
 
     def create_table(self, tablename, *columns, **kwargs):
         df = pd.DataFrame(data=None, columns=columns)

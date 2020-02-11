@@ -16,7 +16,7 @@ from trackers.KeyboardTracker import KeyboardTrackManager
 
 class Main:
     archiver_db = ArchiveDBConnection()
-    logger = LoggingObject('KEYARCHIVER', LoggingObject.get_info_level(), abspath('.'))
+    logger = LoggingObject('KEYARCHIVER', 'INFO', abspath('.'))
     KeyboardTrackManager.logger = logger
 
     def __init__(self):

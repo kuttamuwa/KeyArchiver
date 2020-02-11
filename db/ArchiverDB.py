@@ -16,7 +16,7 @@ from db.connectors.sqlserver import SQLServerConnector
 
 class ArchiveDBConnection(BaseDBConnector, ABC):
     __tablename__ = 'KEYARCHIVER'
-    __columnnames__ = ('KEY', 'DESCRIPTION')
+    __columnnames__ = ('KEY', 'DESCRIPTION', 'DATE')
     __config__ = f"{ConfiguresReader.__modulepath__}/confs.ini"
 
     def __init__(self):
@@ -93,7 +93,8 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
     def add_row(self, key, value, **kwargs):
         df = pd.DataFrame({
             self.__columnnames__[0]: key,
-            self.__columnnames__[1]: value
+            self.__columnnames__[1]: value,
+            self.__columnnames__[2]: pd.to_datetime('today', errors='coerce')
         }, index=[0])
         df.to_sql(self.__tablename__, self.dbengine.dbengine, if_exists='append', )
 

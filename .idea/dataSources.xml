@@ -13,5 +13,17 @@
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$USER_HOME$/Downloads/ARAZI231017/ARAZI2310/MobileCache.db</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="KEYARCHIVE-SQLITE" uuid="7f8b3153-b5ed-4986-891d-b9ead7cad384">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/keyarchiver.db</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="umutdb@10.0.0.64 [2]" uuid="a53f0468-961d-4488-87f1-2513f15a7465">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://10.0.0.64:5432/umutdb</jdbc-url>
+    </data-source>
   </component>
 </project>
