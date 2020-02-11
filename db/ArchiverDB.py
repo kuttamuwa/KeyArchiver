@@ -24,8 +24,6 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
         dbinfos = self._get_dbinfos_config()
 
         if isinstance(dbinfos, str) == 1:
-            # sqlite
-            self.brand = 'SQLITE'
             super().__init__(None, None, None, None, None, path=dbinfos)  # uname, pass, dbname, port, ip
         else:
             super().__init__(*dbinfos)
@@ -88,9 +86,11 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
 
             return username, password, dbname, port, ip
         else:
+            # sqlite
+            self.brand = 'SQLITE'
             return f"{abspath('.')}/keyarchiver.db"
 
-    def add_row(self, key, value, **kwargs):
+    def add_row(self, key, value):
         df = pd.DataFrame({
             self.__columnnames__[0]: key,
             self.__columnnames__[1]: value,
