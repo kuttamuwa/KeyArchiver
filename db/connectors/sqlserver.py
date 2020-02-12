@@ -3,8 +3,8 @@ from abc import ABC
 import pyodbc
 from sqlalchemy import create_engine
 
+from sysinfos.AboutOS import OSInfos
 from .baseDBConnector import BaseDBConnector, BaseDBErrors
-from .baseDBConnector import OSInfos
 
 
 class SQLServerConnector(BaseDBConnector, ABC):
@@ -41,8 +41,10 @@ class SQLServerConnector(BaseDBConnector, ABC):
         except pyodbc.InterfaceError as err:
             if err.args.count('driver'):
                 print("baglanti basarisiz oldu, driver göstererek ilerleyeceğiz.")
-                sqlengine = create_engine("mssql+pyodbc://sa:sa.123@10.0.1.228:1433/test_cbs"
-                                          "?driver=ODBC+Driver+17+for+SQL+Server")
+                sqlengine = create_engine(
+                    f"mssql+pyodbc://{self._username}:{self._password}@{self._ip}:{self._port}/{self._dbname}"
+                    "?driver=ODBC+Driver+17+for+SQL+Server")
+                # todo : driver meselesini hallet
 
                 try:
                     sqlengine.connect()

@@ -32,6 +32,9 @@ class BaseDBConnector:
         self._path = kwargs.get('path')
 
         self.dbengine = None
+        self.connection = None
+        self.transaction = None
+
         self.dbsession = None
 
         self.versioned = None
@@ -109,8 +112,17 @@ class BaseDBConnector:
     def make_engine(self):
         self.create_engine()
 
+    def create_connection(self):
+        self.connection = self.dbengine.connect()
+
+    def create_transaction(self):
+        if self.connection is None:
+            self.create_connection()
+
+        self.transaction = self.connection.begin()
+
     def close_connection(self):
-        raise NotImplementedError()
+        self.connection.close()
 
     def execute_sql(self, sqlClause):
         raise NotImplementedError()
@@ -135,7 +147,7 @@ class BaseDBConnector:
     def alter_password(self, username, newPassword):
         raise NotImplementedError()
 
-    def add_row(self, df, tablename, **kwargs):
+    def add_row_df(self, df, tablename, **kwargs):
         try:
             df.to_sql(tablename, self.dbengine, **kwargs)
         except ProgrammingError as prgerr:

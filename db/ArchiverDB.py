@@ -105,10 +105,10 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
         }, index=[0])
 
         try:
-            self.dbengine.add_row(df, self.__tablename__, if_exists='append')
+            self.dbengine.add_row_df(df, self.__tablename__, if_exists='append', method=None)
         except BaseDBErrors.ColumnNotExists:
             self.recreate_archive_tables()
-            self.dbengine.add_row(df, self.__tablename__, if_exists='append')
+            self.dbengine.add_row_df(df, self.__tablename__, if_exists='append')
 
 
 class ArchiveTableNotExists(BaseException):

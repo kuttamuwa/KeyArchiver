@@ -3,6 +3,7 @@ from abc import ABC
 import pandas as pd
 from psycopg2 import OperationalError
 from sqlalchemy import create_engine
+from sqlalchemy import text
 
 from .baseDBConnector import BaseDBConnector, BaseDBErrors
 
@@ -32,6 +33,10 @@ class PostgreSQLConnector(BaseDBConnector, ABC):
             raise BaseDBErrors("PostgreSQL veritabani baglantisi yapilamadi ! Baglanti bilgilerini kontrol ediniz.\n"
                                f"Hata : {err}")
 
+        except Exception as err:
+            raise Exception("PostgreSQL veritabani baglantisi yapilamadi ! Baglanti bilgilerini kontrol edniz ! \n"
+                            f"Hata : {err}")
+
     def find_gis_datatype_oftable(self, tablename):
         sql = f'SELECT ST_GeometryType(shape) FROM {tablename}'
         st_type = str(self.dbsession.execute(sql).fetchall()[0][
@@ -44,5 +49,14 @@ class PostgreSQLConnector(BaseDBConnector, ABC):
         df.to_sql(tablename, self.dbengine, **kwargs)
 
     def delete_table(self, *tables):
+        self.create_connection()
+        self.create_transaction()
+
         for table in tables:
-            self.dbengine.execute(f'DROP TABLE IF EXISTS {table} CASCADE')
+            try:
+                self.connection.execute(text(f'DROP TABLE IF EXISTS {table} CASCADE '))
+                self.transaction.commit()
+            except Exception as err:
+                self.transaction.rollback()
+                print(f"error raised for this table: {table} \n"
+                      f"Error : {err}")

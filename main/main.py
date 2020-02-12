@@ -6,7 +6,6 @@ This is the main program
 # Author, Formatter : Umut Ucok
 """
 
-import threading
 from os.path import abspath
 
 from db.ArchiverDB import ArchiveDBConnection
@@ -20,14 +19,16 @@ class Main:
     KeyboardTrackManager.logger = logger
 
     def __init__(self):
-        self.keyboard_thread = threading.Thread(name="keyboard", target=self.create_keyboard_tracker)
-        self.keyboard_thread.start()
-        self.ktrack = None
-
-    def create_keyboard_tracker(self):
+        # self.keyboard_thread = threading.Thread(name="keyboard", target=self.create_keyboard_tracker)
+        # self.keyboard_thread.start()
         self.ktrack = KeyboardTrackManager()
+        # self.create_keyboard_tracker()
+
+    # def create_keyboard_tracker(self):
+    #     self.ktrack = KeyboardTrackManager()
+    # self.ktrack.setName(KeyboardTrackManager.__name__)
 
 
 if __name__ == '__main__':
     m = Main()
-    print(m.keyboard_thread)
+    # print(m.keyboard_thread)
