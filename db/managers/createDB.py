@@ -1,6 +1,6 @@
 class BaseCreateDB:
-    def __init__(self, dbengine, name, *args, **kwargs):
-        self.dbengine = dbengine
+    def __init__(self, connector, name, *args, **kwargs):
+        self.dbengine = connector
         self.name = name
 
     def create_db(self):

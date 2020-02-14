@@ -1,13 +1,13 @@
 import unittest
+
 from config.ConfigReader import ConfiguresReader
-from db.connectors.baseDBConnector import BaseDBConnector
 from db.connectors import baseDBConnector as bcon
+from db.connectors.SQLite import SQLite
+from db.connectors.mongo import MongoConnector
+from db.connectors.msaccess import MSAccessConnector
+from db.connectors.oracle import OracleConnector
 from db.connectors.postgresql import PostgreSQLConnector
 from db.connectors.sqlserver import SQLServerConnector
-from db.connectors.oracle import OracleConnector
-from db.connectors.mongo import MongoConnector
-from db.connectors.SQLite import SQLite
-from db.connectors.msaccess import MSAccessConnector
 
 
 class DBConnectionTest(unittest.TestCase):
