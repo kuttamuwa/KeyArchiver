@@ -10,6 +10,48 @@ from .baseDBConnector import BaseDBConnector, BaseDBErrors
 
 
 class SQLite(BaseDBConnector, ABC):
+    def import_config_file(self, path):
+        pass
+
+    def export_connection_config(self, folder):
+        pass
+
+    def find_gis_datatype_oftable(self, tablename):
+        pass
+
+    def generate_changeversion_sql(self):
+        pass
+
+    def test_connection(self):
+        pass
+
+    def execute_sql(self, sqlClause):
+        pass
+
+    def execute_sqlfile(self, sqlFile):
+        pass
+
+    def add_users(self, **users):
+        pass
+
+    def delete_users(self, *users):
+        pass
+
+    def delete_table(self, *tables):
+        pass
+
+    def alter_password(self, username, newPassword):
+        pass
+
+    def clone_database(self, sourceDB, targetDBName, **kwargs):
+        pass
+
+    def export_shp(self, tablename, path):
+        pass
+
+    def import_shp(self, path, table):
+        pass
+
     def __init__(self, path, **kwargs):
         super().__init__(None, None, None, None, None, path=path, **kwargs)
         self.create_engine()
