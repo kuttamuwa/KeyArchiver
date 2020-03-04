@@ -1,7 +1,6 @@
 import tkinter as tk
 
 from trackers.MouseTracker import MouseTrackManager
-from util.Singleton import MetaSingleton
 
 
 class _BaseWindow(tk.Tk):
@@ -22,7 +21,7 @@ class _BaseWindow(tk.Tk):
         self.destroy()
 
 
-class RecordWindow(tk.Frame, metaclass=MetaSingleton):
+class RecordWindow(tk.Frame):  # , metaclass=MetaSingleton
     state = None
 
     def __init__(self, **kw):
@@ -74,4 +73,4 @@ class RecordWindow(tk.Frame, metaclass=MetaSingleton):
         print(self.keyword_entry.get())
         if self.keyword_entry.get() != "":
             self.description = self.keyword_entry.get()
-            self.close_popup()
+            self.close_popup_event(e)

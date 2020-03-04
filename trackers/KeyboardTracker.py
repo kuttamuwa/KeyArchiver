@@ -25,8 +25,12 @@ class KeyboardTrackManager:  # (Thread)
     def _create_popup(self):
         RecordWindow.state_on()
         self.popup = RecordWindow()
-        # RecordWindow.state_off()
+        RecordWindow.state_off()
         return self.popup.description
+
+    def _destroy_popup(self):
+        RecordWindow.state_off()
+        self.popup.close_popup()
 
     def on_press_event(self, key):
         if key == self.shortcut_key:
@@ -43,3 +47,4 @@ class KeyboardTrackManager:  # (Thread)
                 self._dbengine.add_row(CopyManager.get_copied_text(), description)
 
             self.shortcut_counter = 0
+            # self._destroy_popup()

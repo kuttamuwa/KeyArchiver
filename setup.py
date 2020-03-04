@@ -9,5 +9,5 @@ setup(
     license='GNU',
     author='umut ucok',
     author_email='ucok.umut@gmail.com',
-    description='see README.md'
+    description='see README.md', install_requires=['pynput', 'pyperclip']
 )

@@ -17,8 +17,9 @@ from db.connectors.sqlserver import SQLServerConnector
 
 
 class ArchiveDBConnection(BaseDBConnector, ABC):
+    __CHAR_MAX_LIMIT__ = 500  # VARCHAR(500)
     __tablename__ = 'KEYARCHIVER'
-    __columnnames__ = ('KEY', 'DESCRIPTION', 'DATE')
+    __columnnames__ = ('ID', 'KEY', 'TANIM', 'ZAMAN', 'GRUP')
     __config__ = f"{ConfiguresReader.__modulepath__}/confs.ini"
     __db_mechanism__ = None  # it will be filebase or db
 
@@ -149,10 +150,14 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
         self.dbengine.delete_table(self.__tablename__)
 
     def add_row(self, key, value):
+        if str(key).__len__() > self.__CHAR_MAX_LIMIT__:
+            raise NotImplementedError("500 Karakterden fazlasini kopyalamak henuz kodlanmadi.")
+
         df = pd.DataFrame({
-            self.__columnnames__[0]: key,
-            self.__columnnames__[1]: value,
-            self.__columnnames__[2]: pd.to_datetime('today', errors='coerce')
+            self.__columnnames__[1]: key,
+            self.__columnnames__[2]: value,
+            self.__columnnames__[3]: pd.to_datetime('today', errors='coerce'),
+            self.__columnnames__[4]: None
         }, index=[0])
 
         try:

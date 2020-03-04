@@ -3,9 +3,9 @@
 
 CREATE TABLE IF NOT EXISTS "KEYARCHIVER"
 (
-    'id' PRIMARY KEY           NOT NULL,
-    'KEY'         VARCHAR(500) NOT NULL,
-    'DESCRIPTION' VARCHAR(500) NOT NULL,
-    'ZAMAN'       DATETIME     NOT NULL, -- CREATED TIME
-    'GRUP'        INTEGER                -- If text is larger than 500
+    'ID'    INTEGER PRIMARY KEY AUTOINCREMENT,
+    'KEY'   VARCHAR(500) NOT NULL,
+    'TANIM' VARCHAR(500) NOT NULL,
+    'ZAMAN' DATETIME     NOT NULL, -- CREATED TIME
+    'GRUP'  INTEGER                -- If text is larger than 500
 )

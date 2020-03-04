@@ -172,6 +172,8 @@ class BaseDBConnector:
         pass
 
     def add_row_df(self, df, tablename, **kwargs):
+        kwargs['index'] = False
+
         try:
             df.to_sql(tablename, self.dbengine, **kwargs)
         except ProgrammingError as prgerr:
