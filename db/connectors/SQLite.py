@@ -10,7 +10,15 @@ from .baseDBConnector import BaseDBConnector, BaseDBErrors
 
 
 class SQLite(BaseDBConnector, ABC):
+    def __init__(self, path, **kwargs):
+        super().__init__(None, None, None, None, None, path=path, **kwargs)
+        self.create_engine()
+        self.sqls = kwargs.get('sql')
+
     def import_config_file(self, path):
+        pass
+
+    def read_create_table_sql(self):
         pass
 
     def export_connection_config(self, folder):
@@ -52,10 +60,6 @@ class SQLite(BaseDBConnector, ABC):
     def import_shp(self, path, table):
         pass
 
-    def __init__(self, path, **kwargs):
-        super().__init__(None, None, None, None, None, path=path, **kwargs)
-        self.create_engine()
-
     def chech_exist(self):
         return isfile(self._path)
 
@@ -92,5 +96,7 @@ class SQLite(BaseDBConnector, ABC):
                 self.create_sqlite_engine()
 
     def create_table(self, tablename, *columns, **kwargs):
+        sql = self.read_create_table_sql()
+        self.dbengine.execute("")
         df = pd.DataFrame(data=None, columns=columns)
         df.to_sql(tablename, self.dbengine, **kwargs)

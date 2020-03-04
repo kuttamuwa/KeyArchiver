@@ -6,6 +6,7 @@ __supported__ = ('ORACLE', 'MSSQLSERVER', 'POSTGRESQL', 'MSACCESS', 'SQLITE', 'M
 
 import sys
 
+import numpy as np
 from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -124,6 +125,22 @@ class BaseDBConnector:
     def close_connection(self):
         self.connection.close()
 
+    @staticmethod
+    def _read_sql_file(sql_file):
+        sql = ""
+        try:
+            with open(sql_file, 'r', encoding='utf-8', errors='strict') as sql_reader:
+                sql.join(sql_reader.readlines())
+
+        except FileNotFoundError:
+            raise FileNotFoundError(f"{sql_file} okunamadi. Lutfen dosyanin varligindan emin olunuz")
+
+        except Exception as err:
+            Exception(f"{sql_file} dosyasi okunurken bir hatayla karsilasildi. \n"
+                      f"Hata: {err.args}")
+
+        return sql
+
     def execute_sql(self, sqlClause):
         raise NotImplementedError()
 
@@ -146,6 +163,9 @@ class BaseDBConnector:
 
     def alter_password(self, username, newPassword):
         raise NotImplementedError()
+
+    def read_create_table_sql(self):
+        pass
 
     def add_row_df(self, df, tablename, **kwargs):
         try:
@@ -179,13 +199,13 @@ class BaseDBConnector:
         if str(self.dbengine.dbengine.engine.name).lower().count('postgresql'):
             return __supported__[2]
         elif str(self.dbengine.dbengine.engine.name).lower().count('oracle'):
-            raise NotImplementedError('baksana olm')
+            return __supported__[0]
         elif str(self.dbengine.dbengine.engine.name).lower().count('sqlserver'):
-            raise NotImplementedError('baksana olm')
+            return __supported__[1]
         elif str(self.dbengine.dbengine.engine.name).lower().count('mongo'):
-            raise NotImplementedError('baksana olm')
+            return __supported__[-1]
         elif str(self.dbengine.dbengine.engine.name).lower().count('access'):
-            raise NotImplementedError('baksana olm')
+            raise NotImplementedError('We dont like Access.')
 
     @staticmethod
     def get_required_arguments_for_rdbms():
@@ -198,6 +218,10 @@ class BaseDBConnector:
     @staticmethod
     def get_required_arguments_for_nosql():
         return required_arguments_for_nosql
+
+    class _KeyArchiverTable:
+        tables = {'index', 'KEY', 'DESCRIPTION', 'DATE'}
+        types = {np.uint32, np.str, np.str, np.datetime_as_string}
 
 
 class BaseDBErrors(Exception):

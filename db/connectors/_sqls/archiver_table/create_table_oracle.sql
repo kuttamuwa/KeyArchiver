@@ -1,0 +1,15 @@
+-- 500 char limit will be handled on programming side.
+
+-- AUTO INCREMENT
+CREATE SEQUENCE ID_SEQ START WITH 1;
+
+CREATE TABLE "KEYARCHIVER"
+(
+    ID PRIMARY KEY NOT NULL,
+    KEY         NVARCHAR2(500),
+    DESCRIPTION NVARCHAR2(500),
+    ZAMAN       DATE,
+    GRUP        NUMBER
+
+)
+

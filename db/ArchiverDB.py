@@ -19,14 +19,17 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
     __tablename__ = 'KEYARCHIVER'
     __columnnames__ = ('KEY', 'DESCRIPTION', 'DATE')
     __config__ = f"{ConfiguresReader.__modulepath__}/confs.ini"
+    __db_mechanism__ = None  # it will be filebase or db
 
     def __init__(self):
         self._configreader = self.config_read()
         dbinfos = self._get_dbinfos_config()
 
         if isinstance(dbinfos, str) == 1:
+            # filebase
             super().__init__(None, None, None, None, None, path=dbinfos)  # uname, pass, dbname, port, ip
         else:
+            # db
             super().__init__(*dbinfos)
 
         self.create_engine()
@@ -39,32 +42,51 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
         else:
             return ConfiguresReader(self.__config__)
 
+    @classmethod
+    def get_db_mechanism(cls):
+        return cls.__db_mechanism__
+
+    @classmethod
+    def set_db_mechanism(cls, value):
+        if isinstance(value, str):
+            cls.__db_mechanism__ = value
+
     def create_engine(self):
-        if self.brand not in dbsupporteds:
-            raise NotImplementedError(f"Brand not in {dbsupporteds} ! \n"
-                                      f"Please set the db brand which we support")
-        # ('ORACLE', 'MSSQLSERVER', 'POSTGRESQL', 'MSACCESS')
+        if self.get_db_mechanism() == 'DB':
+            if self.brand not in dbsupporteds:
+                raise NotImplementedError(f"Brand not in {dbsupporteds} ! \n"
+                                          f"Please set the db brand which we support")
+            # ('ORACLE', 'MSSQLSERVER', 'POSTGRESQL', 'MSACCESS')
 
-        if self.brand == 'MSACCESS':
-            self.dbengine = MSAccessConnector(self._path, warnings=False)
+            if self.brand == 'MSACCESS':
+                self.dbengine = MSAccessConnector(self._path, warnings=False)
 
-        elif self.brand == 'ORACLE':
-            self.dbengine = OracleConnector(self._username, self._password, self._dbname, self._port, self._ip,
-                                            start=True)
-
-        elif self.brand == 'MSSQLSERVER':
-            self.dbengine = SQLServerConnector(self._username, self._password, self._dbname, self._port, self._ip,
-                                               start=True)
-
-        elif self.brand == 'POSTGRESQL':
-            self.dbengine = PostgreSQLConnector(self._username, self._password, self._dbname, self._port, self._ip,
+            elif self.brand == 'ORACLE':
+                self.dbengine = OracleConnector(self._username, self._password, self._dbname, self._port, self._ip,
                                                 start=True)
 
-        elif self.brand == 'MONGO':
-            self.dbengine = MongoConnector(self._username, self._password, self._dbname, self._port, self._ip,
-                                           start=True)
-        elif self.brand == 'SQLITE':
-            self.dbengine = SQLite(self._path, start=True)
+            elif self.brand == 'MSSQLSERVER':
+                self.dbengine = SQLServerConnector(self._username, self._password, self._dbname, self._port, self._ip,
+                                                   start=True)
+
+            elif self.brand == 'POSTGRESQL':
+                self.dbengine = PostgreSQLConnector(self._username, self._password, self._dbname, self._port, self._ip,
+                                                    start=True)
+
+            elif self.brand == 'MONGO':
+                self.dbengine = MongoConnector(self._username, self._password, self._dbname, self._port, self._ip,
+                                               start=True)
+
+            else:
+                raise NotImplementedError("Another DB Brand is not supported yet. Please see what we support: \n"
+                                          f"{dbsupporteds}")
+        else:
+            if self.brand == 'SQLITE':
+                self.dbengine = SQLite(self._path, start=True)
+
+            else:
+                raise NotImplementedError("Another filebase db is not supported for this version yet ! \n"
+                                          "Please try sqlite : )")
 
     def get_archive_table(self):
         return self.dbengine.dbengine.dialect.has_table(connection=self.dbengine.dbengine,
@@ -77,17 +99,27 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
     def _get_dbinfos_config(self):
         if self._configreader is not None:
             section = self._configreader.read_section('db')
-            username = str(section.get('username'))
-            password = str(section.get('password'))
-            dbname = str(section.get('dbname'))
-            port = int(section.get('port'))
-            ip = str(section.get('ip')).lower()
-            self.brand = str(section.get('brand')).upper()
 
-            return username, password, dbname, port, ip
+            # it may be filebase db
+            if section.get('path') is not None:
+                self.set_db_mechanism('FILEBASE')
+                self.brand = str(section.get('brand')).upper()
+                return section['path']
+
+            else:
+                self.set_db_mechanism('DB')
+
+                username = str(section.get('username'))
+                password = str(section.get('password'))
+                dbname = str(section.get('dbname'))
+                port = int(section.get('port'))
+                ip = str(section.get('ip')).lower()
+                self.brand = str(section.get('brand')).upper()
+
+                return username, password, dbname, port, ip
         else:
-            # sqlite
-            self.brand = 'SQLITE'
+            # sqlite - automatically will be created
+            # todo: must be refactored via function which has to check db was created or not
             return f"{abspath('.')}/keyarchiver.db"
 
     def recreate_archive_tables(self):
