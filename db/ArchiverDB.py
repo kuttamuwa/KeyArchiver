@@ -1,3 +1,4 @@
+import pathlib
 from abc import ABC
 from os.path import isfile, abspath
 
@@ -23,7 +24,7 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
 
     def __init__(self):
         self._configreader = self.config_read()
-        dbinfos = self._get_dbinfos_config()
+        dbinfos, _ = self._get_dbinfos_config()
 
         if isinstance(dbinfos, str) == 1:
             # filebase
@@ -93,30 +94,48 @@ class ArchiveDBConnection(BaseDBConnector, ABC):
                                                         table_name=self.__tablename__)
 
     def create_archive_tables(self):
-        if not self.get_archive_table():
-            self.dbengine.create_table(self.__tablename__, *self.__columnnames__, if_exists='append')
+        sqls = self._get_dbinfos_sql()
+        create_sql = self._read_sql_file(sqls.get('create'))
+
+        try:
+            self.dbengine.dbengine.execute(create_sql)
+
+        except Exception as err:
+            raise Exception("An error occured while creating tables. You may try create them yourself."
+                            "Check your sql file in _sqls//archiver_table for your db brand which can be checked"
+                            " on confs.ini \n"
+                            f"Error: {err.args}")
+
+    def _get_dbinfos_connection_string(self):
+        section = self._configreader.read_section('db')
+
+        # it may be filebase db
+        if section.get('path') is not None:
+            self.set_db_mechanism('FILEBASE')
+            self.brand = str(section.get('brand')).upper()
+            return section['path']
+
+        else:
+            self.set_db_mechanism('DB')
+
+            username = str(section.get('username'))
+            password = str(section.get('password'))
+            dbname = str(section.get('dbname'))
+            port = int(section.get('port'))
+            ip = str(section.get('ip')).lower()
+            self.brand = str(section.get('brand')).upper()
+
+            return username, password, dbname, port, ip
+
+    def _get_dbinfos_sql(self):
+        section = self._configreader.read_section('sql')
+        create_table_sql = pathlib.Path(section.get('create_table_sql'))
+
+        return {'create': create_table_sql}
 
     def _get_dbinfos_config(self):
         if self._configreader is not None:
-            section = self._configreader.read_section('db')
-
-            # it may be filebase db
-            if section.get('path') is not None:
-                self.set_db_mechanism('FILEBASE')
-                self.brand = str(section.get('brand')).upper()
-                return section['path']
-
-            else:
-                self.set_db_mechanism('DB')
-
-                username = str(section.get('username'))
-                password = str(section.get('password'))
-                dbname = str(section.get('dbname'))
-                port = int(section.get('port'))
-                ip = str(section.get('ip')).lower()
-                self.brand = str(section.get('brand')).upper()
-
-                return username, password, dbname, port, ip
+            return self._get_dbinfos_connection_string(), self._get_dbinfos_sql()
         else:
             # sqlite - automatically will be created
             # todo: must be refactored via function which has to check db was created or not

@@ -126,11 +126,11 @@ class BaseDBConnector:
         self.connection.close()
 
     @staticmethod
-    def _read_sql_file(sql_file):
-        sql = ""
+    def _read_sql_file(sql_file, **kwargs):
+        sql_lines = ""
         try:
             with open(sql_file, 'r', encoding='utf-8', errors='strict') as sql_reader:
-                sql.join(sql_reader.readlines())
+                sql_lines = sql_reader.read()
 
         except FileNotFoundError:
             raise FileNotFoundError(f"{sql_file} okunamadi. Lutfen dosyanin varligindan emin olunuz")
@@ -139,7 +139,11 @@ class BaseDBConnector:
             Exception(f"{sql_file} dosyasi okunurken bir hatayla karsilasildi. \n"
                       f"Hata: {err.args}")
 
-        return sql
+        if kwargs.get('uncomment'):
+            sql_lines = [i for i in sql_lines.split('\n') if not str(i).startswith('--')]
+            sql_lines = "".join(sql_lines)
+
+        return sql_lines
 
     def execute_sql(self, sqlClause):
         raise NotImplementedError()

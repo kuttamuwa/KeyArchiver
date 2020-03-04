@@ -96,7 +96,5 @@ class SQLite(BaseDBConnector, ABC):
                 self.create_sqlite_engine()
 
     def create_table(self, tablename, *columns, **kwargs):
-        sql = self.read_create_table_sql()
-        self.dbengine.execute("")
         df = pd.DataFrame(data=None, columns=columns)
         df.to_sql(tablename, self.dbengine, **kwargs)
