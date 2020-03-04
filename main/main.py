@@ -19,14 +19,7 @@ class Main:
     KeyboardTrackManager.logger = logger
 
     def __init__(self):
-        # self.keyboard_thread = threading.Thread(name="keyboard", target=self.create_keyboard_tracker)
-        # self.keyboard_thread.start()
         self.ktrack = KeyboardTrackManager()
-        # self.create_keyboard_tracker()
-
-    # def create_keyboard_tracker(self):
-    #     self.ktrack = KeyboardTrackManager()
-    # self.ktrack.setName(KeyboardTrackManager.__name__)
 
 
 if __name__ == '__main__':
